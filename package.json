@@ -45,6 +45,7 @@
     "coffee-script": "1.7.x"
   },
   "dependencies": {
+    "request": "^2.51.0",
     "underscore": "1.6.0"
   },
   "bugs": {

@@ -1,12 +1,19 @@
 https       = require 'https'
 querystring = require 'querystring'
 _           = require 'underscore'
+request     = require 'request'
 
 class HipChatClient
   
   host:    'api.hipchat.com'
 
-  constructor: (@apikey, @agent) ->
+  constructor: (options, @agent) ->
+    if typeof options is 'object'
+      @apikey = options.apikey
+      @agent = options.agent
+      @proxy = options.proxy
+    else 
+      @apikey = options
     @rateLimits =
       limit: 0
       remaining: 0
@@ -159,12 +166,13 @@ class HipChatClient
     op.query['auth_token'] = @apikey
     op.query = querystring.stringify(op.query)
     op.path += '?' + op.query
+    op.url = 'http://' + op.host + op.path
+
+    if(@proxy)
+      op.proxy = 'http://' + @proxy.host + ':' + @proxy.port
     
     if op.method is 'post' and op.data?
-      op.data = querystring.stringify(op.data)
-      op.headers = {} unless op.headers?
-      op.headers['Content-Type']   = 'application/x-www-form-urlencoded'
-      op.headers['Content-Length'] = op.data.length
+      op.form = op.data
 
     if(@agent)
       op.agent = @agent
@@ -172,7 +180,7 @@ class HipChatClient
     return op
 
   _sendRequest: (options, callback) ->
-    req = https.request(options)
+    req = request(options)
     
     req.on 'response', (res) =>
       buffer = ''
@@ -192,7 +200,6 @@ class HipChatClient
           else
             callback(null, buffer)
 
-    if options.data? then req.write('' + options.data)
     req.end()
 
 
