@@ -51,7 +51,7 @@ class HipChatClient
 
   getHistory: (params, callback) ->
     data =
-      room_id:  params.room_id
+      room_id:  params.room_id || params.room
       date:     params.date ? 'recent'
       timezone: params.timezone ? 'UTC'
     
@@ -64,7 +64,7 @@ class HipChatClient
 
   postMessage: (params, callback) ->
     data =
-      room_id: params.room_id
+      room_id: params.room_id || params.room
       from:    params.from ? 'node-hipchat'
       message: params.message
       notify:  if params.notify then 1 else 0
